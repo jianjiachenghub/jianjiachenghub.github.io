@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>BFC：块级格式上下文详解 | JianJc's Blog</title><meta name="description" content="BFC：块级格式上下文详解"><meta name="keywords" content="CSS3"><meta name="author" content="JianJc"><meta name="copyright" content="JianJc"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="canonical" href="https://www.jianjiacheng.com/2019/06/30/CSS/BFC：块级格式上下文详解/"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="BFC：块级格式上下文详解"><meta name="twitter:description" content="BFC：块级格式上下文详解"><meta name="twitter:image" content="http://photo.jianjiacheng.com/blog/14/small.jpg"><meta property="og:type" content="article"><meta property="og:title" content="BFC：块级格式上下文详解"><meta property="og:url" content="https://www.jianjiacheng.com/2019/06/30/CSS/BFC：块级格式上下文详解/"><meta property="og:site_name" content="JianJc's Blog"><meta property="og:description" content="BFC：块级格式上下文详解"><meta property="og:image" content="http://photo.jianjiacheng.com/blog/14/small.jpg"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="prev" title="JS匿名函数内部this指向" href="https://www.jianjiacheng.com/2019/06/30/JavaScript/JS匿名函数内部this指向/"><link rel="next" title="CSS3动画简单案例" href="https://www.jianjiacheng.com/2019/06/30/CSS/CSS3动画简单案例/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.1.1/dist/instantsearch.min.css"><script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.1.1/dist/instantsearch.min.js" defer></script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"KF9JAVZ9GB","apiKey":"4e24c56230d9d3512e91affcc8410913","indexName":"myWeb","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容:${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: {"defaultEncoding":1,"translateDelay":0,"cookieDomain":"https://jerryc.me/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  highlight_copy: 'true',
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    title: '添加书签',
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天'
+
+  
+}</script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div class="auto_open" id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-BFC简要定义"><span class="toc-number">1.</span> <span class="toc-text">1.BFC简要定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-BFC创建方式"><span class="toc-number">2.</span> <span class="toc-text">2.BFC创建方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-BFC内部特性"><span class="toc-number">3.</span> <span class="toc-text">3.BFC内部特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-BFC应用实例"><span class="toc-number">4.</span> <span class="toc-text">4.BFC应用实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-BFC清除浮动"><span class="toc-number">4.1.</span> <span class="toc-text">1.BFC清除浮动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-BFC处理margin-collapse"><span class="toc-number">4.2.</span> <span class="toc-text">2.BFC处理margin collapse</span></a></li></ol></li></ol></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://photo.jianjiacheng.com/blog/14/small.jpg)"><div id="page-header"><span class="pull-left"> <a class="blog_title" id="site-name" href="/">JianJc's Blog</a></span><div class="open toggle-menu pull-right"><div class="menu-icon-first"></div><div class="menu-icon-second"></div><div class="menu-icon-third"></div></div><span class="pull-right menus"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-coffee"></i><span> 留言板</span></a><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a><script>document.body.addEventListener('touchstart', function(){ });</script></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title"><div class="posttitle">BFC：块级格式上下文详解</div></div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2019-06-30<span class="post-meta__separator">|</span><i class="fa fa-history" aria-hidden="true"></i> 更新于 2019-06-30</time><span class="post-meta__separator mobile_hidden">|</span><span class="mobile_hidden"><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/CSS/">CSS</a></span><div class="post-meta-wordcount"><span>字数总计: </span><span class="word-count">717</span><span class="post-meta__separator">|</span><span>阅读时长: 2 分钟</span><span class="post-meta__separator">|</span><span>阅读量: </span><span id="busuanzi_value_page_pv"></span></div></div></div></div><div class="layout layout_post" id="content-inner">   <article id="post"><div class="article-container" id="post-content"><h2 id="1-BFC简要定义"><a href="#1-BFC简要定义" class="headerlink" title="1.BFC简要定义"></a>1.BFC简要定义</h2><p>BFC(Block formatting context)直译为”块级格式化上下文”。它是一个独立的渲染区域，它规定了内部如何布局，是决定块盒子的布局及浮动相互影响范围的一个区域，并且与这个区域外部毫不相干。</p>
+<h2 id="2-BFC创建方式"><a href="#2-BFC创建方式" class="headerlink" title="2.BFC创建方式"></a>2.BFC创建方式</h2><ul>
+<li>根元素或其它包含它的元素；</li>
+<li>浮动 (元素的float不为none)；</li>
+<li>绝对定位元素 (元素的position为absolute或fixed)；</li>
+<li>行内块inline-blocks(元素的 display: inline-block)；</li>
+<li>表格单元格(元素的display: table-cell，HTML表格单元格默认属性)；</li>
+<li>overflow的值不为visible的元素；</li>
+<li>弹性盒 flex boxes (元素的display: flex或inline-flex)</li>
+</ul>
+<h2 id="3-BFC内部特性"><a href="#3-BFC内部特性" class="headerlink" title="3.BFC内部特性"></a>3.BFC内部特性</h2><ul>
+<li>内部的盒会在垂直方向一个接一个排列（可以看作BFC中有一个的常规流）；</li>
+<li>处于同一个BFC中的元素相互影响，可能会发生margin collapse；但不同BFC可以阻止margin collapse</li>
+<li>每个元素的margin box的左边，与容器块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此；</li>
+<li>BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素，反之亦然；</li>
+<li>计算BFC的高度时，考虑BFC所包含的所有元素，连浮动元素也参与计算；</li>
+<li>浮动盒区域不叠加到BFC上；</li>
+</ul>
+<h2 id="4-BFC应用实例"><a href="#4-BFC应用实例" class="headerlink" title="4.BFC应用实例"></a>4.BFC应用实例</h2><h3 id="1-BFC清除浮动"><a href="#1-BFC清除浮动" class="headerlink" title="1.BFC清除浮动"></a>1.BFC清除浮动</h3><p><strong>将父元素设置一个能让其变为BFC区域的属性，不如overflow：auto</strong></p>
+<p><img src="http://photo.jianjiacheng.com/blog/14/1.png" alt="图片描述"><br><img src="http://photo.jianjiacheng.com/blog/14/2.png" alt="图片描述"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;title&gt;Title&lt;/title&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">        #one&#123;</span><br><span class="line">            background:green;</span><br><span class="line">            width: 100px;</span><br><span class="line">            height: 50px;</span><br><span class="line">            float: left;</span><br><span class="line">        &#125;</span><br><span class="line">        #two&#123;</span><br><span class="line">            background: red;</span><br><span class="line">            width: 200px;</span><br><span class="line">            height: 50px;</span><br><span class="line">            float: left;</span><br><span class="line">        &#125;</span><br><span class="line">        #box&#123;</span><br><span class="line">            border: 2px solid salmon;</span><br><span class="line">            width: 400px;</span><br><span class="line">            overflow: auto;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;div id=&quot;box&quot;&gt;</span><br><span class="line">    &lt;div id=&quot;one&quot;&gt;one&lt;/div&gt;</span><br><span class="line">    &lt;div id=&quot;two&quot;&gt;two&lt;/div&gt;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line"></span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-BFC处理margin-collapse"><a href="#2-BFC处理margin-collapse" class="headerlink" title="2.BFC处理margin collapse"></a>2.BFC处理margin collapse</h3><blockquote>
+<p>在CSS中，两个或多个毗邻的普通流中的盒子（可能是父子元素，也可能是兄弟元素）在垂直方向上的外边距会发生叠加，这种形成的外边距称之为外边距叠加。这里讲解父子元素，兄弟元素同理。</p>
+</blockquote>
+<p> <img src="http://photo.jianjiacheng.com/blog/14/3.png" alt="图片描述"><br> <img src="http://photo.jianjiacheng.com/blog/14/4.png" alt="图片描述"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;title&gt;Title&lt;/title&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">        *&#123;</span><br><span class="line">            margin: 0;</span><br><span class="line">            padding: 0;</span><br><span class="line">        &#125;</span><br><span class="line">        p&#123;</span><br><span class="line">            padding: 0;</span><br><span class="line">            margin: 20px 0 20px 0;</span><br><span class="line">            height: 20px;</span><br><span class="line">            background-color: burlywood;</span><br><span class="line">            color: #fff;</span><br><span class="line">        &#125;</span><br><span class="line">        div&#123;</span><br><span class="line">            overflow: auto;//前后的区别取决于这句话，加上就能让父级生成BFC区域包含它们</span><br><span class="line">            width: 250px;</span><br><span class="line">            background-color: #ccc;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;div&gt;</span><br><span class="line">    &lt;p&gt;aaaaaaaaaaaaaa&lt;/p&gt;</span><br><span class="line">    &lt;p&gt;bbbbbbbbbbbbbb&lt;/p&gt;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line"></span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>BFC改造后</strong></p>
+<p><img src="http://photo.jianjiacheng.com/blog/14/5.png" alt="图片描述"></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">JianJc</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.jianjiacheng.com/2019/06/30/CSS/BFC：块级格式上下文详解/">https://www.jianjiacheng.com/2019/06/30/CSS/BFC：块级格式上下文详解/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.jianjiacheng.com">JianJc's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CSS3/">CSS3    </a></div><div class="post_share"><div class="social-share" data-image="http://photo.jianjiacheng.com/blog/14/small.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-buttom"><i class="fa fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="lozad post-qr-code__img" data-src="/img/wechat.jpg"><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="lozad post-qr-code__img" data-src="/img/alipay.jpg"><div class="post-qr-code__desc">支付寶</div></li></ul></div></a></div><nav class="pagination_post" id="pagination"><div class="prev-post pull-left"><a href="/2019/06/30/JavaScript/JS匿名函数内部this指向/"><img class="prev_cover lozad" data-src="http://photo.jianjiacheng.com/blog/15/small.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="label">上一篇</div><div class="prev_info"><span>JS匿名函数内部this指向</span></div></a></div><div class="next-post pull-right"><a href="/2019/06/30/CSS/CSS3动画简单案例/"><img class="next_cover lozad" data-src="http://photo.jianjiacheng.com/blog/13/small.gif" onerror="onerror=null;src='/img/404.jpg'"><div class="label">下一篇</div><div class="next_info"><span>CSS3动画简单案例</span></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2019/06/30/CSS/CSS3动画简单案例/" title="CSS3动画简单案例"><img class="relatedPosts_cover lozad" data-src="http://photo.jianjiacheng.com/blog/13/small.gif"><div class="relatedPosts_title">CSS3动画简单案例</div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i> <span>评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+
+var localeName = 'tw',
+localeMode = {
+    head: {
+        nick: '暱稱(必填)',
+        mail: '郵箱(必填,可以收到回復提醒)',
+        link: '網址(選填)',
+    },
+    tips: {
+        comments: '評論',
+        sofa: '快來做第一個評論的人吧~',
+        busy: '還在提交中，請稍候...',
+        again: '這麼簡單也能錯，也是沒誰了.'
+    },
+    ctrl: {
+        reply: '回覆',
+        ok: '好的',
+        sure: '確認',
+        cancel: '取消',
+        confirm: '確認',
+        continue: '繼續',
+        more: '查看更多...',
+        try: '再試試?',
+        preview: '預覽',
+        emoji: '表情'
+    },
+    error: {
+        99: '初始化失敗，請檢查init中的`el`元素.',
+        100: '初始化失敗，請檢查你的AppId和AppKey.',
+        401: '未經授權的操作，請檢查你的AppId和AppKey.',
+        403: '訪問被api域名白名單拒絕，請檢查你的安全域名設置.',
+    },
+    timeago: {
+        seconds: '秒前',
+        minutes: '分鐘前',
+        hours: '小時前',
+        days: '天前',
+        now: '剛剛'
+    }
+};
+
+window.valine = new Valine();
+valine.installLocale(localeName,localeMode);
+
+valine.init({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'71zEgkqx1kXl8QC4ugWWm3zk-gzGzoHsz',
+  appKey:'BOMPXdQUAYJEKIb5F6N0uJR9',
+  placeholder:'请在这里输入你的评论！',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang:'en',
+  recordIP: true
+});</script></div></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 - 2019 By JianJc</div><div class="framework-info"><span>驱动 </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><section class="rightside" id="rightside"><i class="fa fa-book" id="readmode" title="阅读模式"> </i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="简繁转换">簡</a><i class="fa fa-moon-o nightshift" id="nightshift" title="夜间模式"></i></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script async src="/js/search/algolia.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css"><script>$(function () {
+  $('span.katex-display').wrap('<div class="katex-wrap"></div>')
+})</script><script src="/js/nightshift.js"></script><script id="ribbon" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/js/piao.js"></script><script src="/js/activate-power-mode.js"></script><script>POWERMODE.colorful = true; // make power mode colorful
+POWERMODE.shake = true; // turn off shake
+document.body.addEventListener('input', POWERMODE);
+</script><script src="/js/tw_cn.js"></script><script>translateInitilization()
+
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@1.2.2/instantpage.min.js" type="module"></script><div class="search-dialog" id="algolia-search"><div class="search-dialog__title" id="algolia-search-title">Algolia</div><div id="algolia-input-panel"><div id="algolia-search-input"></div></div><hr><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-stats"></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
