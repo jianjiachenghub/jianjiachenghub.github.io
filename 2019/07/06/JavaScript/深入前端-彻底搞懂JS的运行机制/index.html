@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>深入前端-彻底搞懂JS的运行机制 | JianJc's Blog</title><meta name="description" content="深入前端-彻底搞懂JS的运行机制"><meta name="keywords" content="Javascript,运行机制,事件循环,单线程,Event Loop"><meta name="author" content="JianJc"><meta name="copyright" content="JianJc"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="canonical" href="https://www.jianjiacheng.com/2019/07/06/JavaScript/深入前端-彻底搞懂JS的运行机制/"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="深入前端-彻底搞懂JS的运行机制"><meta name="twitter:description" content="深入前端-彻底搞懂JS的运行机制"><meta name="twitter:image" content="http://photo.jianjiacheng.com/blog/23/small.png"><meta property="og:type" content="article"><meta property="og:title" content="深入前端-彻底搞懂JS的运行机制"><meta property="og:url" content="https://www.jianjiacheng.com/2019/07/06/JavaScript/深入前端-彻底搞懂JS的运行机制/"><meta property="og:site_name" content="JianJc's Blog"><meta property="og:description" content="深入前端-彻底搞懂JS的运行机制"><meta property="og:image" content="http://photo.jianjiacheng.com/blog/23/small.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="next" title="深入前端-彻底搞懂浏览器运行机制" href="https://www.jianjiacheng.com/2019/07/06/浏览器/深入前端-彻底搞懂浏览器运行机制/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.1.1/dist/instantsearch.min.css"><script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.1.1/dist/instantsearch.min.js" defer></script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"KF9JAVZ9GB","apiKey":"4e24c56230d9d3512e91affcc8410913","indexName":"myWeb","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容:${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: {"defaultEncoding":1,"translateDelay":0,"cookieDomain":"https://jerryc.me/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  highlight_copy: 'true',
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    title: '添加书签',
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天'
+
+  
+}</script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div class="auto_open" id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#了解进程和线程"><span class="toc-number">1.</span> <span class="toc-text">了解进程和线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#浏览器是多进程的"><span class="toc-number">2.</span> <span class="toc-text">浏览器是多进程的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#javascript是一门单线程语言"><span class="toc-number">3.</span> <span class="toc-text">javascript是一门单线程语言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#任务队列"><span class="toc-number">4.</span> <span class="toc-text">任务队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#同步和异步任务"><span class="toc-number">5.</span> <span class="toc-text">同步和异步任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#任务有更精细的定义："><span class="toc-number">6.</span> <span class="toc-text">任务有更精细的定义：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#macrotask（又称之为宏任务）"><span class="toc-number">6.1.</span> <span class="toc-text">macrotask（又称之为宏任务）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#microtask（又称为微任务），可以理解是在当前-task-执行结束后立即执行的任务"><span class="toc-number">6.2.</span> <span class="toc-text">microtask（又称为微任务），可以理解是在当前 task 执行结束后立即执行的任务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#执行机制与事件循环"><span class="toc-number">7.</span> <span class="toc-text">执行机制与事件循环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#说了那么多来点实例吧"><span class="toc-number">8.</span> <span class="toc-text">说了那么多来点实例吧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ajax普通异步请求实例"><span class="toc-number">8.1.</span> <span class="toc-text">ajax普通异步请求实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#普通微任务宏任务实例"><span class="toc-number">8.2.</span> <span class="toc-text">普通微任务宏任务实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#地狱模式：promise和settimeout事件循环实例"><span class="toc-number">8.3.</span> <span class="toc-text">地狱模式：promise和settimeout事件循环实例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一轮事件循环"><span class="toc-number">8.3.1.</span> <span class="toc-text">第一轮事件循环</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二轮事件循环"><span class="toc-number">8.3.2.</span> <span class="toc-text">第二轮事件循环</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三轮事件循环"><span class="toc-number">8.3.3.</span> <span class="toc-text">第三轮事件循环</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文章"><span class="toc-number">9.</span> <span class="toc-text">参考文章</span></a></li></ol></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://photo.jianjiacheng.com/blog/23/small.png)"><div id="page-header"><span class="pull-left"> <a class="blog_title" id="site-name" href="/">JianJc's Blog</a></span><div class="open toggle-menu pull-right"><div class="menu-icon-first"></div><div class="menu-icon-second"></div><div class="menu-icon-third"></div></div><span class="pull-right menus"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-coffee"></i><span> 留言板</span></a><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a><script>document.body.addEventListener('touchstart', function(){ });</script></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title"><div class="posttitle">深入前端-彻底搞懂JS的运行机制</div></div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2019-07-06<span class="post-meta__separator">|</span><i class="fa fa-history" aria-hidden="true"></i> 更新于 2019-07-06</time><span class="post-meta__separator mobile_hidden">|</span><span class="mobile_hidden"><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Javascript/">Javascript</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Javascript/原生JS/">原生JS</a></span><div class="post-meta-wordcount"><span>字数总计: </span><span class="word-count">3k</span><span class="post-meta__separator">|</span><span>阅读时长: 9 分钟</span><span class="post-meta__separator">|</span><span>阅读量: </span><span id="busuanzi_value_page_pv"></span></div></div></div></div><div class="layout layout_post" id="content-inner">   <article id="post"><div class="article-container" id="post-content"><h2 id="了解进程和线程"><a href="#了解进程和线程" class="headerlink" title="了解进程和线程"></a>了解进程和线程</h2><ul>
+<li><p>进程是应用程序的执行实例，每一个进程都是由私有的虚拟地址空间、代码、数据和其它系统资源所组成；进程在运行过程中能够申请创建和使用系统资源（如- 独立的内存区域等），这些资源也会随着进程的终止而被销毁。</p>
+</li>
+<li><p>而线程则是进程内的一个独立执行单元，在不同的线程之间是可以共享进程资源的，所以在多线程的情况下，需要特别注意对临界资源的访问控制。</p>
+</li>
+<li><p>在系统创建进程之后就开始启动执行进程的主线程，而进程的生命周期和这个主线程的生命周期一致，主线程的退出也就意味着进程的终止和销毁。</p>
+</li>
+<li><p>主线程是由系统进程所创建的，同时用户也可以自主创建其它线程，这一系列的线程都会并发地运行于同一个进程中。</p>
+<h2 id="浏览器是多进程的"><a href="#浏览器是多进程的" class="headerlink" title="浏览器是多进程的"></a>浏览器是多进程的</h2><blockquote>
+<p>详情看我上篇总结浏览器执行机制的文章</p>
+</blockquote>
+</li>
+<li><p>浏览器每打开一个标签页，就相当于创建了一个独立的浏览器进程。</p>
+</li>
+<li><p>Browser进程：浏览器的主进程（负责协调、主控），只有一个。作用有</p>
+</li>
+<li><p>第三方插件进程：每种类型的插件对应一个进程，仅当使用该插件时才创建</p>
+</li>
+<li><p>GPU进程：最多一个，用于3D绘制等</p>
+</li>
+<li><p>浏览器渲染进程（浏览器内核）</p>
+<h2 id="javascript是一门单线程语言"><a href="#javascript是一门单线程语言" class="headerlink" title="javascript是一门单线程语言"></a>javascript是一门单线程语言</h2></li>
+<li><p>jS运行在浏览器中，是单线程的，但每个tab标签页都是一个进程，都含有不同JS线程分别执行，，一个Tab页（renderer进程）中无论什么时候都只有一个JS线程在运行JS程序</p>
+</li>
+<li><p>既然是单线程的，在某个特定的时刻只有特定的代码能够被执行，并阻塞其它的代码。而浏览器是事件驱动的（Event driven），浏览器中很多行为是异步（Asynchronized）的，会创建事件并放入执行队列中。javascript引擎是单线程处理它的任务队列，你可以理解成就是普通函数和回调函数构成的队列。当异步事件发生时，如（鼠标点击事件发生、定时器触发事件发生、XMLHttpRequest完成回调触发等），将他们放入执行队列，等待当前代码执行完成。</p>
+</li>
+<li><p>javascript引擎是基于事件驱动单线程执行的，JS引擎一直等待着任务队列中任务的到来，然后加以处理，浏览器无论什么时候都只有一个JS线程在运行JS程序。所以一切javascript版的”多线程”都是用单线程模拟出来的</p>
+</li>
+<li><p>为什么JavaScript是单线程？与它的用途有关。作为浏览器脚本语言，JavaScript的主要用途是与用户互动，以及操作DOM。这决定了它只能是单线程，否则会带来很复杂的同步问题。比如，假定JavaScript同时有两个线程，一个线程在某个DOM节点上添加内容，另一个线程删除了这个节点，这时浏览器应该以哪个线程为准？</p>
+</li>
+</ul>
+<h2 id="任务队列"><a href="#任务队列" class="headerlink" title="任务队列"></a>任务队列</h2><ul>
+<li>“任务队列”是一个事件的队列（也可以理解成消息的队列），IO设备完成一项任务，就在”任务队列”中添加一个事件，表示相关的异步任务可以进入”执行栈”了。主线程读取”任务队列”，就是读取里面有哪些事件。</li>
+<li>“任务队列”中的事件，除了IO设备的事件以外，还包括一些用户产生的事件（比如鼠标点击、页面滚动等等）,ajax请求等。只要指定过回调函数，这些事件发生时就会进入”任务队列”，等待主线程读取。</li>
+<li>所谓”回调函数”（callback），就是那些会被主线程挂起来的代码。异步任务必须指定回调函数，当主线程开始执行异步任务，就是执行对应的回调函数。</li>
+<li>“任务队列”是一个先进先出的数据结构，排在前面的事件，优先被主线程读取。主线程的读取过程基本上是自动的，只要执行栈一清空，”任务队列”上第一位的事件就自动进入主线程。但是，由于存在后文提到的”定时器”功能，主线程首先要检查一下执行时间，某些事件只有到了规定的时间，才能返回主线程。<h2 id="同步和异步任务"><a href="#同步和异步任务" class="headerlink" title="同步和异步任务"></a>同步和异步任务</h2>既然js是单线程，那么问题来了，某一些非常耗时间的任务就会导致阻塞，难道必须等前面的任务一步一步执行玩吗？<br>比如我再排队就餐，前面很长的队列，我一直在那里等岂不是很傻逼，说以就会有排号系统产生，我们订餐后给我们一个号码，叫到号码直接去就行了，没交我们之前我们可以去干其他的事情。<br>因此聪明的程序员将任务分为两类：</li>
+<li>同步任务：同步任务指的是，在主线程上排队执行的任务，只有前一个任务执行完毕，才能执行后一个任务；</li>
+<li>异步任务：异步任务指的是，不进入主线程、而进入”任务队列”（Event queue）的任务，只有”任务队列”通知主线程，某个异步任务可以执行了，该任务才会进入主线程执行。</li>
+</ul>
+<p><img src="http://photo.jianjiacheng.com/blog/23/2.png" alt></p>
+<h2 id="任务有更精细的定义："><a href="#任务有更精细的定义：" class="headerlink" title="任务有更精细的定义："></a>任务有更精细的定义：</h2><ul>
+<li>macro-task(宏任务)：包括整体代码script（同步宏任务），setTimeout、setInterval（异步宏任务）</li>
+<li>micro-task(微任务)：Promise，process.nextTick，ajax请求（异步微任务）<br><img src="http://photo.jianjiacheng.com/blog/23/1.png" alt></li>
+</ul>
+<h3 id="macrotask（又称之为宏任务）"><a href="#macrotask（又称之为宏任务）" class="headerlink" title="macrotask（又称之为宏任务）"></a>macrotask（又称之为宏任务）</h3><p>可以理解是每次执行栈执行的代码就是一个宏任务（包括每次从事件队列中获取一个事件回调并放到执行栈中执行）<br>每一个task会从头到尾将这个任务执行完毕，不会执行其它<br>浏览器为了能够使得JS内部task与DOM任务能够有序的执行，会在一个task执行结束后，在下一个 task 执行开始前，对页面进行重新渲染<br>（task-&gt;渲染-&gt;task-&gt;…）</p>
+<h3 id="microtask（又称为微任务），可以理解是在当前-task-执行结束后立即执行的任务"><a href="#microtask（又称为微任务），可以理解是在当前-task-执行结束后立即执行的任务" class="headerlink" title="microtask（又称为微任务），可以理解是在当前 task 执行结束后立即执行的任务"></a>microtask（又称为微任务），可以理解是在当前 task 执行结束后立即执行的任务</h3><p>也就是说，在当前task任务后，下一个task之前，在渲染之前<br>所以它的响应速度相比setTimeout（setTimeout是task）会更快，因为无需等渲染<br>也就是说，在某一个macrotask执行完后，就会将在它执行期间产生的所有microtask都执行完毕（在渲染前）<br><img src="http://photo.jianjiacheng.com/blog/23/3.png" alt></p>
+<h2 id="执行机制与事件循环"><a href="#执行机制与事件循环" class="headerlink" title="执行机制与事件循环"></a>执行机制与事件循环</h2><p>主线程运行的时候，产生堆（heap）和栈（stack），栈中的代码调用各种外部API，它们在”任务队列”中加入各种事件（click，load，done）。只要栈中的代码执行完毕，主线程就会去读取”任务队列”，依次执行那些事件所对应的回调函数。  </p>
+<p>那怎么知道主线程执行栈为执行完毕？js引擎存在monitoring process进程，会持续不断的检查主线程执行栈是否为空，一旦为空，就会去Event Queue那里检查是否有等待被调用的函数。</p>
+<p>第一轮事件循环：<br>主线程执行js整段代码（宏任务），将ajax、setTimeout、promise等回调函数注册到Event Queue，并区分宏任务和微任务。<br>主线程提取并执行Event Queue 中的ajax、promise等所有微任务，并注册微任务中的异步任务到Event Queue。<br>第二轮事件循环：<br>主线程提取Event Queue 中的第一个宏任务（通常是setTimeout）。<br>主线程执行setTimeout宏任务，并注册setTimeout代码中的异步任务到Event Queue（如果有）。<br>执行Event Queue中的所有微任务，并注册微任务中的异步任务到Event Queue（如果有）。<br>类似的循环：宏任务每执行完一个，就清空一次事件队列中的微任务。</p>
+<p><strong>注意：事件队列中分“宏任务队列”和“微任务队列”，每执行一次任务都可能注册新的宏任务或微任务到相应的任务队列中，只要遵循“每执行一个宏任务，就会清空一次事件队列中的所有微任务”这一循环规则，就不会弄乱。</strong></p>
+<p><img src="http://photo.jianjiacheng.com/blog/23/5.png" alt></p>
+<h2 id="说了那么多来点实例吧"><a href="#说了那么多来点实例吧" class="headerlink" title="说了那么多来点实例吧"></a>说了那么多来点实例吧</h2><h3 id="ajax普通异步请求实例"><a href="#ajax普通异步请求实例" class="headerlink" title="ajax普通异步请求实例"></a>ajax普通异步请求实例</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">let data = [];</span><br><span class="line">$.ajax(&#123;</span><br><span class="line">    url:www.javascript.com,</span><br><span class="line">    data:data,</span><br><span class="line">    success:() =&gt; &#123;</span><br><span class="line">        console.log(&apos;发送成功!&apos;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line">console.log(&apos;代码执行结束&apos;);</span><br></pre></td></tr></table></figure>
+
+<p>  1.执行整个代码，遇到ajax异步操作<br>  2.ajax进入Event Table，注册回调函数success。<br>  3.执行console.log(‘代码执行结束’)。<br>  4.执行ajax异步操作<br>  5.ajax事件完成，回调函数success进入Event Queue。<br>  5.主线程从Event Queue读取回调函数success并执行。</p>
+<h3 id="普通微任务宏任务实例"><a href="#普通微任务宏任务实例" class="headerlink" title="普通微任务宏任务实例"></a>普通微任务宏任务实例</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">setTimeout(function()&#123;</span><br><span class="line">    console.log(&apos;定时器开始啦&apos;)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">new Promise(function(resolve)&#123;</span><br><span class="line">    console.log(&apos;马上执行for循环啦&apos;);</span><br><span class="line">    for(var i = 0; i &lt; 10000; i++)&#123;</span><br><span class="line">        i == 99 &amp;&amp; resolve();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).then(function()&#123;</span><br><span class="line">    console.log(&apos;执行then函数啦&apos;)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">console.log(&apos;代码执行结束&apos;);</span><br></pre></td></tr></table></figure>
+
+<p>1.整段代码作为宏任务执行，遇到setTimeout宏任务分配到宏任务Event Queue中<br>2.遇到promise内部为同步方法直接执行-“马上执行for循环啦”<br>3.注册then回调到Eventqueen<br>4.主代码宏任务执行完毕-“代码执行结束”<br>5.主代码宏任务结束被monitoring process进程监听到，主任务执行Event Queue的微任务<br>6.微任务执行完毕-“执行then函数啦”<br>7.执行宏任务console.log(‘定时器开始啦’)</p>
+<h3 id="地狱模式：promise和settimeout事件循环实例"><a href="#地狱模式：promise和settimeout事件循环实例" class="headerlink" title="地狱模式：promise和settimeout事件循环实例"></a>地狱模式：promise和settimeout事件循环实例</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">console.log(&apos;1&apos;);</span><br><span class="line">// 1 6 7 2 4 5 9 10 11 8 3</span><br><span class="line">// 记作 set1</span><br><span class="line">setTimeout(function () &#123;</span><br><span class="line">    console.log(&apos;2&apos;);</span><br><span class="line">    // set4</span><br><span class="line">    setTimeout(function() &#123;</span><br><span class="line">        console.log(&apos;3&apos;);</span><br><span class="line">    &#125;);</span><br><span class="line">    // pro2</span><br><span class="line">    new Promise(function (resolve) &#123;</span><br><span class="line">        console.log(&apos;4&apos;);</span><br><span class="line">        resolve();</span><br><span class="line">    &#125;).then(function () &#123;</span><br><span class="line">        console.log(&apos;5&apos;)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">// 记作 pro1</span><br><span class="line">new Promise(function (resolve) &#123;</span><br><span class="line">    console.log(&apos;6&apos;);</span><br><span class="line">    resolve();</span><br><span class="line">&#125;).then(function () &#123;</span><br><span class="line">    console.log(&apos;7&apos;);</span><br><span class="line">    // set3</span><br><span class="line">    setTimeout(function() &#123;</span><br><span class="line">        console.log(&apos;8&apos;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">// 记作 set2</span><br><span class="line">setTimeout(function () &#123;</span><br><span class="line">    console.log(&apos;9&apos;);</span><br><span class="line">    // 记作 pro3</span><br><span class="line">    new Promise(function (resolve) &#123;</span><br><span class="line">        console.log(&apos;10&apos;);</span><br><span class="line">        resolve();</span><br><span class="line">    &#125;).then(function () &#123;</span><br><span class="line">        console.log(&apos;11&apos;);</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h4 id="第一轮事件循环"><a href="#第一轮事件循环" class="headerlink" title="第一轮事件循环"></a>第一轮事件循环</h4><p> 1.整体script作为第一个宏任务进入主线程，遇到console.log，输出1。 </p>
+<p><img src="http://photo.jianjiacheng.com/blog/23/6.png" alt> </p>
+<p> 2.遇到set1，其回调函数被分发到宏任务Event Queue中。 </p>
+<p><img src="http://photo.jianjiacheng.com/blog/23/7.png" alt> </p>
+<p>3.遇到pro1，new Promise直接执行，输出6。then被分发到微任务Event Queue中。 </p>
+<p><img src="http://photo.jianjiacheng.com/blog/23/8.png" alt> </p>
+<p>4.遇到了set2，其回调函数被分发到宏任务Event Queue中。 </p>
+<p><img src="http://photo.jianjiacheng.com/blog/23/9.png" alt> </p>
+<ol start="5">
+<li>主线程的整段js代码（宏任务）执行完，开始清空所有微任务；主线程执行微任务pro1，输出7；遇到set3，注册回调函数。 </li>
+</ol>
+<p><img src="http://photo.jianjiacheng.com/blog/23/10.png" alt> </p>
+<h4 id="第二轮事件循环"><a href="#第二轮事件循环" class="headerlink" title="第二轮事件循环"></a>第二轮事件循环</h4><p>1.主线程执行队列中第一个宏任务set1，输出2；代码中遇到了set4，注册回调；又遇到了pro2，new promise()直接执行输出4，并注册回调； </p>
+<p><img src="http://photo.jianjiacheng.com/blog/23/11.png" alt> </p>
+<p>2.set1宏任务执行完毕，开始清空微任务，主线程执行微任务pro2，输出5。 </p>
+<p><img src="http://photo.jianjiacheng.com/blog/23/12.png" alt> </p>
+<h4 id="第三轮事件循环"><a href="#第三轮事件循环" class="headerlink" title="第三轮事件循环"></a>第三轮事件循环</h4><p>1.主线程执行队列中第一个宏任务set2，输出9；代码中遇到了pro3，new promise()直接输出10，并注册回调； </p>
+<p>2.set2宏任务执行完毕，开始情况微任务，主线程执行微任务pro3，输出11。</p>
+<p>类似循环…</p>
+<p>所以最后输出结果为1、6、7、2、4、5、9、10、11、8、3。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+<li><a href="https://www.cnblogs.com/Mainz/p/3552717.html" target="_blank" rel="noopener">https://www.cnblogs.com/Mainz/p/3552717.html</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2014/10/event-loop.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2014/10/event-loop.html</a></li>
+<li><a href="https://juejin.im/post/5b4dfb94f265da0f955cc606" target="_blank" rel="noopener">https://juejin.im/post/5b4dfb94f265da0f955cc606</a></li>
+<li><a href="https://juejin.im/post/5b879a9f6fb9a01a0f24a5e1" target="_blank" rel="noopener">https://juejin.im/post/5b879a9f6fb9a01a0f24a5e1</a></li>
+<li><a href="https://juejin.im/post/59e85eebf265da430d571f89#heading-1" target="_blank" rel="noopener">https://juejin.im/post/59e85eebf265da430d571f89#heading-1</a></li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">JianJc</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.jianjiacheng.com/2019/07/06/JavaScript/深入前端-彻底搞懂JS的运行机制/">https://www.jianjiacheng.com/2019/07/06/JavaScript/深入前端-彻底搞懂JS的运行机制/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.jianjiacheng.com">JianJc's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Javascript/">Javascript    </a><a class="post-meta__tags" href="/tags/运行机制/">运行机制    </a><a class="post-meta__tags" href="/tags/事件循环/">事件循环    </a><a class="post-meta__tags" href="/tags/单线程/">单线程    </a><a class="post-meta__tags" href="/tags/Event-Loop/">Event Loop    </a></div><div class="post_share"><div class="social-share" data-image="http://photo.jianjiacheng.com/blog/23/small.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-buttom"><i class="fa fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="lozad post-qr-code__img" data-src="http://photo.jianjiacheng.com/微信.png"><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="lozad post-qr-code__img" data-src="http://photo.jianjiacheng.com/支付宝.jpg"><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><nav class="pagination_post" id="pagination"><div class="next-post pull-full"><a href="/2019/07/06/浏览器/深入前端-彻底搞懂浏览器运行机制/"><img class="next_cover lozad" data-src="http://photo.jianjiacheng.com/blog/22/small.png" onerror="onerror=null;src='/img/404.jpg'"><div class="label">下一篇</div><div class="next_info"><span>深入前端-彻底搞懂浏览器运行机制</span></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2019/06/30/JavaScript/原生JS发请求/" title="原生JS发请求"><img class="relatedPosts_cover lozad" data-src="http://photo.jianjiacheng.com/blog/7/small.jpg"><div class="relatedPosts_title">原生JS发请求</div></a></div><div class="relatedPosts_item"><a href="/2019/07/01/JavaScript/JavaScript正则需要注意的地方/" title="JavaScript正则需要注意的地方"><img class="relatedPosts_cover lozad" data-src="http://photo.jianjiacheng.com/blog/20/small.jpg"><div class="relatedPosts_title">JavaScript正则需要注意的地方</div></a></div><div class="relatedPosts_item"><a href="/2019/06/30/JavaScript/匿名函数以及闭包内部this指向（函数调用模式的问题）/" title="匿名函数以及闭包内部this指向（函数调用模式的问题）"><img class="relatedPosts_cover lozad" data-src="http://photo.jianjiacheng.com/blog/17/small.jpg"><div class="relatedPosts_title">匿名函数以及闭包内部this指向（函数调用模式的问题）</div></a></div><div class="relatedPosts_item"><a href="/2019/06/30/JavaScript/JS匿名函数内部this指向/" title="JS匿名函数内部this指向"><img class="relatedPosts_cover lozad" data-src="http://photo.jianjiacheng.com/blog/15/small.jpg"><div class="relatedPosts_title">JS匿名函数内部this指向</div></a></div><div class="relatedPosts_item"><a href="/2019/06/30/JavaScript/JS实现函数的节流和防抖/" title="JS实现函数的节流和防抖"><img class="relatedPosts_cover lozad" data-src="http://photo.jianjiacheng.com/blog/11/small.jpg"><div class="relatedPosts_title">JS实现函数的节流和防抖</div></a></div><div class="relatedPosts_item"><a href="/2019/06/30/JavaScript/原生JS上传图片接收服务器端图片并且显示图片（主要描述blob类型）/" title="原生JS上传图片接收服务器端图片并且显示图片（主要描述blob类型）"><img class="relatedPosts_cover lozad" data-src="http://photo.jianjiacheng.com/blog/10/small.jpg"><div class="relatedPosts_title">原生JS上传图片接收服务器端图片并且显示图片（主要描述blob类型）</div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i> <span>评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+
+var localeName = 'tw',
+localeMode = {
+    head: {
+        nick: '暱稱(必填)',
+        mail: '郵箱(必填,可以收到回復提醒)',
+        link: '網址(選填)',
+    },
+    tips: {
+        comments: '評論',
+        sofa: '快來做第一個評論的人吧~',
+        busy: '還在提交中，請稍候...',
+        again: '這麼簡單也能錯，也是沒誰了.'
+    },
+    ctrl: {
+        reply: '回覆',
+        ok: '好的',
+        sure: '確認',
+        cancel: '取消',
+        confirm: '確認',
+        continue: '繼續',
+        more: '查看更多...',
+        try: '再試試?',
+        preview: '預覽',
+        emoji: '表情'
+    },
+    error: {
+        99: '初始化失敗，請檢查init中的`el`元素.',
+        100: '初始化失敗，請檢查你的AppId和AppKey.',
+        401: '未經授權的操作，請檢查你的AppId和AppKey.',
+        403: '訪問被api域名白名單拒絕，請檢查你的安全域名設置.',
+    },
+    timeago: {
+        seconds: '秒前',
+        minutes: '分鐘前',
+        hours: '小時前',
+        days: '天前',
+        now: '剛剛'
+    }
+};
+
+window.valine = new Valine();
+valine.installLocale(localeName,localeMode);
+
+valine.init({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'71zEgkqx1kXl8QC4ugWWm3zk-gzGzoHsz',
+  appKey:'BOMPXdQUAYJEKIb5F6N0uJR9',
+  placeholder:'请在这里输入你的评论！',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang:'en',
+  recordIP: true
+});</script></div></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 - 2019 By JianJc</div><div class="framework-info"><span>驱动 </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><section class="rightside" id="rightside"><i class="fa fa-book" id="readmode" title="阅读模式"> </i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="简繁转换">簡</a><i class="fa fa-moon-o nightshift" id="nightshift" title="夜间模式"></i></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script async src="/js/search/algolia.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css"><script>$(function () {
+  $('span.katex-display').wrap('<div class="katex-wrap"></div>')
+})</script><script src="/js/nightshift.js"></script><script id="ribbon" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/js/piao.js"></script><script src="/js/activate-power-mode.js"></script><script>POWERMODE.colorful = true; // make power mode colorful
+POWERMODE.shake = true; // turn off shake
+document.body.addEventListener('input', POWERMODE);
+</script><script src="/js/tw_cn.js"></script><script>translateInitilization()
+
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@1.2.2/instantpage.min.js" type="module"></script><div class="search-dialog" id="algolia-search"><div class="search-dialog__title" id="algolia-search-title">Algolia</div><div id="algolia-input-panel"><div id="algolia-search-input"></div></div><hr><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-stats"></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
