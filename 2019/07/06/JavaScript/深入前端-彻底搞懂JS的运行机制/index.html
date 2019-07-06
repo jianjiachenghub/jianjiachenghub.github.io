@@ -18,41 +18,35 @@
 
   
 }</script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div class="auto_open" id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#了解进程和线程"><span class="toc-number">1.</span> <span class="toc-text">了解进程和线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#浏览器是多进程的"><span class="toc-number">2.</span> <span class="toc-text">浏览器是多进程的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#javascript是一门单线程语言"><span class="toc-number">3.</span> <span class="toc-text">javascript是一门单线程语言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#任务队列"><span class="toc-number">4.</span> <span class="toc-text">任务队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#同步和异步任务"><span class="toc-number">5.</span> <span class="toc-text">同步和异步任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#任务有更精细的定义："><span class="toc-number">6.</span> <span class="toc-text">任务有更精细的定义：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#macrotask（又称之为宏任务）"><span class="toc-number">6.1.</span> <span class="toc-text">macrotask（又称之为宏任务）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#microtask（又称为微任务），可以理解是在当前-task-执行结束后立即执行的任务"><span class="toc-number">6.2.</span> <span class="toc-text">microtask（又称为微任务），可以理解是在当前 task 执行结束后立即执行的任务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#执行机制与事件循环"><span class="toc-number">7.</span> <span class="toc-text">执行机制与事件循环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#说了那么多来点实例吧"><span class="toc-number">8.</span> <span class="toc-text">说了那么多来点实例吧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ajax普通异步请求实例"><span class="toc-number">8.1.</span> <span class="toc-text">ajax普通异步请求实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#普通微任务宏任务实例"><span class="toc-number">8.2.</span> <span class="toc-text">普通微任务宏任务实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#地狱模式：promise和settimeout事件循环实例"><span class="toc-number">8.3.</span> <span class="toc-text">地狱模式：promise和settimeout事件循环实例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一轮事件循环"><span class="toc-number">8.3.1.</span> <span class="toc-text">第一轮事件循环</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二轮事件循环"><span class="toc-number">8.3.2.</span> <span class="toc-text">第二轮事件循环</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三轮事件循环"><span class="toc-number">8.3.3.</span> <span class="toc-text">第三轮事件循环</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文章"><span class="toc-number">9.</span> <span class="toc-text">参考文章</span></a></li></ol></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://photo.jianjiacheng.com/blog/23/small.png)"><div id="page-header"><span class="pull-left"> <a class="blog_title" id="site-name" href="/">JianJc's Blog</a></span><div class="open toggle-menu pull-right"><div class="menu-icon-first"></div><div class="menu-icon-second"></div><div class="menu-icon-third"></div></div><span class="pull-right menus"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-coffee"></i><span> 留言板</span></a><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a><script>document.body.addEventListener('touchstart', function(){ });</script></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title"><div class="posttitle">深入前端-彻底搞懂JS的运行机制</div></div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2019-07-06<span class="post-meta__separator">|</span><i class="fa fa-history" aria-hidden="true"></i> 更新于 2019-07-06</time><span class="post-meta__separator mobile_hidden">|</span><span class="mobile_hidden"><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Javascript/">Javascript</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Javascript/原生JS/">原生JS</a></span><div class="post-meta-wordcount"><span>字数总计: </span><span class="word-count">3k</span><span class="post-meta__separator">|</span><span>阅读时长: 9 分钟</span><span class="post-meta__separator">|</span><span>阅读量: </span><span id="busuanzi_value_page_pv"></span></div></div></div></div><div class="layout layout_post" id="content-inner">   <article id="post"><div class="article-container" id="post-content"><h2 id="了解进程和线程"><a href="#了解进程和线程" class="headerlink" title="了解进程和线程"></a>了解进程和线程</h2><ul>
-<li><p>进程是应用程序的执行实例，每一个进程都是由私有的虚拟地址空间、代码、数据和其它系统资源所组成；进程在运行过程中能够申请创建和使用系统资源（如- 独立的内存区域等），这些资源也会随着进程的终止而被销毁。</p>
-</li>
-<li><p>而线程则是进程内的一个独立执行单元，在不同的线程之间是可以共享进程资源的，所以在多线程的情况下，需要特别注意对临界资源的访问控制。</p>
-</li>
-<li><p>在系统创建进程之后就开始启动执行进程的主线程，而进程的生命周期和这个主线程的生命周期一致，主线程的退出也就意味着进程的终止和销毁。</p>
-</li>
-<li><p>主线程是由系统进程所创建的，同时用户也可以自主创建其它线程，这一系列的线程都会并发地运行于同一个进程中。</p>
+<li>进程是应用程序的执行实例，每一个进程都是由私有的虚拟地址空间、代码、数据和其它系统资源所组成；进程在运行过程中能够申请创建和使用系统资源（如- 独立的内存区域等），这些资源也会随着进程的终止而被销毁。</li>
+<li>而线程则是进程内的一个独立执行单元，在不同的线程之间是可以共享进程资源的，所以在多线程的情况下，需要特别注意对临界资源的访问控制。</li>
+<li>在系统创建进程之后就开始启动执行进程的主线程，而进程的生命周期和这个主线程的生命周期一致，主线程的退出也就意味着进程的终止和销毁。</li>
+<li>主线程是由系统进程所创建的，同时用户也可以自主创建其它线程，这一系列的线程都会并发地运行于同一个进程中。</li>
+</ul>
 <h2 id="浏览器是多进程的"><a href="#浏览器是多进程的" class="headerlink" title="浏览器是多进程的"></a>浏览器是多进程的</h2><blockquote>
-<p>详情看我上篇总结浏览器执行机制的文章</p>
+<p>详情看我上篇总结浏览器执行机制的文章-<a href="https://www.jianjiacheng.com/2019/07/06/浏览器/深入前端-彻底搞懂浏览器运行机制/">深入前端-彻底搞懂浏览器运行机制</a></p>
 </blockquote>
-</li>
-<li><p>浏览器每打开一个标签页，就相当于创建了一个独立的浏览器进程。</p>
-</li>
-<li><p>Browser进程：浏览器的主进程（负责协调、主控），只有一个。作用有</p>
-</li>
-<li><p>第三方插件进程：每种类型的插件对应一个进程，仅当使用该插件时才创建</p>
-</li>
-<li><p>GPU进程：最多一个，用于3D绘制等</p>
-</li>
-<li><p>浏览器渲染进程（浏览器内核）</p>
-<h2 id="javascript是一门单线程语言"><a href="#javascript是一门单线程语言" class="headerlink" title="javascript是一门单线程语言"></a>javascript是一门单线程语言</h2></li>
-<li><p>jS运行在浏览器中，是单线程的，但每个tab标签页都是一个进程，都含有不同JS线程分别执行，，一个Tab页（renderer进程）中无论什么时候都只有一个JS线程在运行JS程序</p>
-</li>
-<li><p>既然是单线程的，在某个特定的时刻只有特定的代码能够被执行，并阻塞其它的代码。而浏览器是事件驱动的（Event driven），浏览器中很多行为是异步（Asynchronized）的，会创建事件并放入执行队列中。javascript引擎是单线程处理它的任务队列，你可以理解成就是普通函数和回调函数构成的队列。当异步事件发生时，如（鼠标点击事件发生、定时器触发事件发生、XMLHttpRequest完成回调触发等），将他们放入执行队列，等待当前代码执行完成。</p>
-</li>
-<li><p>javascript引擎是基于事件驱动单线程执行的，JS引擎一直等待着任务队列中任务的到来，然后加以处理，浏览器无论什么时候都只有一个JS线程在运行JS程序。所以一切javascript版的”多线程”都是用单线程模拟出来的</p>
-</li>
-<li><p>为什么JavaScript是单线程？与它的用途有关。作为浏览器脚本语言，JavaScript的主要用途是与用户互动，以及操作DOM。这决定了它只能是单线程，否则会带来很复杂的同步问题。比如，假定JavaScript同时有两个线程，一个线程在某个DOM节点上添加内容，另一个线程删除了这个节点，这时浏览器应该以哪个线程为准？</p>
-</li>
+<ul>
+<li>浏览器每打开一个标签页，就相当于创建了一个独立的浏览器进程。</li>
+<li>Browser进程：浏览器的主进程（负责协调、主控），只有一个。作用有</li>
+<li>第三方插件进程：每种类型的插件对应一个进程，仅当使用该插件时才创建</li>
+<li>GPU进程：最多一个，用于3D绘制等</li>
+<li>浏览器渲染进程（浏览器内核）</li>
+</ul>
+<h2 id="javascript是一门单线程语言"><a href="#javascript是一门单线程语言" class="headerlink" title="javascript是一门单线程语言"></a>javascript是一门单线程语言</h2><ul>
+<li>jS运行在浏览器中，是单线程的，但每个tab标签页都是一个进程，都含有不同JS线程分别执行，，一个Tab页（renderer进程）中无论什么时候都只有一个JS线程在运行JS程序</li>
+<li>既然是单线程的，在某个特定的时刻只有特定的代码能够被执行，并阻塞其它的代码。而浏览器是事件驱动的（Event driven），浏览器中很多行为是异步（Asynchronized）的，会创建事件并放入执行队列中。javascript引擎是单线程处理它的任务队列，你可以理解成就是普通函数和回调函数构成的队列。当异步事件发生时，如（鼠标点击事件发生、定时器触发事件发生、XMLHttpRequest完成回调触发等），将他们放入执行队列，等待当前代码执行完成。</li>
+<li>javascript引擎是基于事件驱动单线程执行的，JS引擎一直等待着任务队列中任务的到来，然后加以处理，浏览器无论什么时候都只有一个JS线程在运行JS程序。所以一切javascript版的”多线程”都是用单线程模拟出来的</li>
+<li>为什么JavaScript是单线程？与它的用途有关。作为浏览器脚本语言，JavaScript的主要用途是与用户互动，以及操作DOM。这决定了它只能是单线程，否则会带来很复杂的同步问题。比如，假定JavaScript同时有两个线程，一个线程在某个DOM节点上添加内容，另一个线程删除了这个节点，这时浏览器应该以哪个线程为准？</li>
 </ul>
 <h2 id="任务队列"><a href="#任务队列" class="headerlink" title="任务队列"></a>任务队列</h2><ul>
 <li>“任务队列”是一个事件的队列（也可以理解成消息的队列），IO设备完成一项任务，就在”任务队列”中添加一个事件，表示相关的异步任务可以进入”执行栈”了。主线程读取”任务队列”，就是读取里面有哪些事件。</li>
 <li>“任务队列”中的事件，除了IO设备的事件以外，还包括一些用户产生的事件（比如鼠标点击、页面滚动等等）,ajax请求等。只要指定过回调函数，这些事件发生时就会进入”任务队列”，等待主线程读取。</li>
 <li>所谓”回调函数”（callback），就是那些会被主线程挂起来的代码。异步任务必须指定回调函数，当主线程开始执行异步任务，就是执行对应的回调函数。</li>
-<li>“任务队列”是一个先进先出的数据结构，排在前面的事件，优先被主线程读取。主线程的读取过程基本上是自动的，只要执行栈一清空，”任务队列”上第一位的事件就自动进入主线程。但是，由于存在后文提到的”定时器”功能，主线程首先要检查一下执行时间，某些事件只有到了规定的时间，才能返回主线程。<h2 id="同步和异步任务"><a href="#同步和异步任务" class="headerlink" title="同步和异步任务"></a>同步和异步任务</h2>既然js是单线程，那么问题来了，某一些非常耗时间的任务就会导致阻塞，难道必须等前面的任务一步一步执行玩吗？<br>比如我再排队就餐，前面很长的队列，我一直在那里等岂不是很傻逼，说以就会有排号系统产生，我们订餐后给我们一个号码，叫到号码直接去就行了，没交我们之前我们可以去干其他的事情。<br>因此聪明的程序员将任务分为两类：</li>
+<li>“任务队列”是一个先进先出的数据结构，排在前面的事件，优先被主线程读取。主线程的读取过程基本上是自动的，只要执行栈一清空，”任务队列”上第一位的事件就自动进入主线程。但是，由于存在后文提到的”定时器”功能，主线程首先要检查一下执行时间，某些事件只有到了规定的时间，才能返回主线程。</li>
+</ul>
+<h2 id="同步和异步任务"><a href="#同步和异步任务" class="headerlink" title="同步和异步任务"></a>同步和异步任务</h2><p>既然js是单线程，那么问题来了，某一些非常耗时间的任务就会导致阻塞，难道必须等前面的任务一步一步执行玩吗？<br>比如我再排队就餐，前面很长的队列，我一直在那里等岂不是很傻逼，说以就会有排号系统产生，我们订餐后给我们一个号码，叫到号码直接去就行了，没交我们之前我们可以去干其他的事情。<br>因此聪明的程序员将任务分为两类：</p>
+<ul>
 <li>同步任务：同步任务指的是，在主线程上排队执行的任务，只有前一个任务执行完毕，才能执行后一个任务；</li>
 <li>异步任务：异步任务指的是，不进入主线程、而进入”任务队列”（Event queue）的任务，只有”任务队列”通知主线程，某个异步任务可以执行了，该任务才会进入主线程执行。</li>
 </ul>
