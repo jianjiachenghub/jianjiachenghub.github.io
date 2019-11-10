@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>docker常用指令详解 | JianJc's technology sharing</title><meta name="description" content="docker常用指令详解"><meta name="keywords" content="docker,linux,ubuntu"><meta name="author" content="JianJc"><meta name="copyright" content="JianJc"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="canonical" href="https://www.jianjiacheng.com/2019/09/08/服务器/docker常用指令详解/"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="docker常用指令详解"><meta name="twitter:description" content="docker常用指令详解"><meta name="twitter:image" content="http://photo.jianjiacheng.com/blog/docker常用指令详解/small.jpg"><meta property="og:type" content="article"><meta property="og:title" content="docker常用指令详解"><meta property="og:url" content="https://www.jianjiacheng.com/2019/09/08/服务器/docker常用指令详解/"><meta property="og:site_name" content="JianJc's technology sharing"><meta property="og:description" content="docker常用指令详解"><meta property="og:image" content="http://photo.jianjiacheng.com/blog/docker常用指令详解/small.jpg"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="prev" title="dockerfile与docker-compose配置" href="https://www.jianjiacheng.com/2019/09/15/服务器/dockerfile与docker-compose配置/"><link rel="next" title="Component或PureComponent" href="https://www.jianjiacheng.com/2019/09/02/React/Component或PureComponent/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.1.1/dist/instantsearch.min.css"><script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.1.1/dist/instantsearch.min.js" defer></script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"KF9JAVZ9GB","apiKey":"4e24c56230d9d3512e91affcc8410913","indexName":"myWeb","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容:${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: {"defaultEncoding":1,"translateDelay":0,"cookieDomain":"https://jerryc.me/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  highlight_copy: 'true',
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    title: '添加书签',
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天'
+
+  
+}</script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div class="auto_open" id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#指令详解"><span class="toc-number">1.</span> <span class="toc-text">指令详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#从远程仓库拉取镜像"><span class="toc-number">1.1.</span> <span class="toc-text">从远程仓库拉取镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看镜像列表"><span class="toc-number">1.2.</span> <span class="toc-text">查看镜像列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#运行一个docker的镜像，产生一个容器实例"><span class="toc-number">1.3.</span> <span class="toc-text">运行一个docker的镜像，产生一个容器实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看容器"><span class="toc-number">1.4.</span> <span class="toc-text">查看容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动一个可交互的容器"><span class="toc-number">1.5.</span> <span class="toc-text">启动一个可交互的容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动守护进程-后台一直运行容器"><span class="toc-number">1.6.</span> <span class="toc-text">启动守护进程,后台一直运行容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#端口映射，挂载数据卷，命名容器"><span class="toc-number">1.7.</span> <span class="toc-text">端口映射，挂载数据卷，命名容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看数据卷"><span class="toc-number">1.8.</span> <span class="toc-text">查看数据卷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动已终止的容器"><span class="toc-number">1.9.</span> <span class="toc-text">启动已终止的容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#退出容器"><span class="toc-number">1.10.</span> <span class="toc-text">退出容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#进入容器"><span class="toc-number">1.11.</span> <span class="toc-text">进入容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除一个或多个container、image（rm、rmi）"><span class="toc-number">1.12.</span> <span class="toc-text">删除一个或多个container、image（rm、rmi）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker查看数据卷轴"><span class="toc-number">1.13.</span> <span class="toc-text">docker查看数据卷轴</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#commit-容器，创建新镜像"><span class="toc-number">1.14.</span> <span class="toc-text">commit 容器，创建新镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker镜像的导出和导入"><span class="toc-number">1.15.</span> <span class="toc-text">docker镜像的导出和导入</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker安装一些软件完整指令"><span class="toc-number">2.</span> <span class="toc-text">docker安装一些软件完整指令</span></a></li></ol></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://photo.jianjiacheng.com/blog/docker常用指令详解/small.jpg)"><div id="page-header"><span class="pull-left"> <a class="blog_title" id="site-name" href="/">JianJc's technology sharing</a></span><div class="open toggle-menu pull-right"><div class="menu-icon-first"></div><div class="menu-icon-second"></div><div class="menu-icon-third"></div></div><span class="pull-right menus"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-coffee"></i><span> 留言板</span></a><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a><script>document.body.addEventListener('touchstart', function(){ });</script></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title"><div class="posttitle">docker常用指令详解</div></div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2019-09-08<span class="post-meta__separator">|</span><i class="fa fa-history" aria-hidden="true"></i> 更新于 2019-11-10</time><span class="post-meta__separator mobile_hidden">|</span><span class="mobile_hidden"><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/服务器/">服务器</a></span><div class="post-meta-wordcount"><span>字数总计: </span><span class="word-count">1.3k</span><span class="post-meta__separator">|</span><span>阅读时长: 4 分钟</span><span class="post-meta__separator">|</span><span>阅读量: </span><span id="busuanzi_value_page_pv"></span></div></div></div></div><div class="layout layout_post" id="content-inner">   <article id="post"><div class="article-container" id="post-content"><h2 id="指令详解"><a href="#指令详解" class="headerlink" title="指令详解"></a>指令详解</h2><h3 id="从远程仓库拉取镜像"><a href="#从远程仓库拉取镜像" class="headerlink" title="从远程仓库拉取镜像"></a>从远程仓库拉取镜像</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//docker image pull library/hello-world默认从library拉取可以省略</span><br><span class="line">docker image pull hello-world</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看镜像列表"><a href="#查看镜像列表" class="headerlink" title="查看镜像列表"></a>查看镜像列表</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image ls</span><br></pre></td></tr></table></figure>
+
+<h3 id="运行一个docker的镜像，产生一个容器实例"><a href="#运行一个docker的镜像，产生一个容器实例" class="headerlink" title="运行一个docker的镜像，产生一个容器实例"></a>运行一个docker的镜像，产生一个容器实例</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//运行</span><br><span class="line">docker run hello-world</span><br><span class="line">//echo会在shell打印一段文字，起提示作用</span><br><span class="line">Hello world</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>检查本地是否存在指定的镜像，不存在就从公有仓库下载</li>
+<li>利用镜像创建并启动一个容器</li>
+<li>分配一个文件系统，并在只读的镜像层外面挂载一层可读写层</li>
+<li>从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去</li>
+<li>从地址池配置一个 ip 地址给容器</li>
+<li>执行用户指定的应用程序</li>
+<li>执行完毕后容器被终止</li>
+</ul>
+<h3 id="查看容器"><a href="#查看容器" class="headerlink" title="查看容器"></a>查看容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 列出本机正在运行的容器</span><br><span class="line">docker container ls</span><br><span class="line">// 列出本机所有容器，包括终止运行的容器</span><br><span class="line">docker container ls --all</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动一个可交互的容器"><a href="#启动一个可交互的容器" class="headerlink" title="启动一个可交互的容器"></a>启动一个可交互的容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -t -i ubuntu:14.04 /bin/bash</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>docker run 命令，并启动名称为ubuntu:14.04的容器 。</li>
+<li>-t 表示在新容器内指定一个伪终端或终端</li>
+<li>-i表示允许我们对容器内的 (STDIN) 进行交互。</li>
+<li>可以将-t -i缩减为-it好记</li>
+<li>我们在容器内还指定了一个新的命令： /bin/bash 。这将在容器内启动 bash shell,这是一个交互程序</li>
+<li>注意”:”后面为TAG，如果没有指定默认就为latest</li>
+</ul>
+<p>所以当容器（container）启动之后，我们会获取到一个命令提示符：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@af8bae53bdd3:/#</span><br></pre></td></tr></table></figure>
+
+<p>这代表我们已经进入了容器内部</p>
+<h3 id="启动守护进程-后台一直运行容器"><a href="#启动守护进程-后台一直运行容器" class="headerlink" title="启动守护进程,后台一直运行容器"></a>启动守护进程,后台一直运行容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d ubuntu:14.04</span><br><span class="line">//注意-d和-it同时使用，-it会无效，-d需要返回一个容器id</span><br></pre></td></tr></table></figure>
+
+<h3 id="端口映射，挂载数据卷，命名容器"><a href="#端口映射，挂载数据卷，命名容器" class="headerlink" title="端口映射，挂载数据卷，命名容器"></a>端口映射，挂载数据卷，命名容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name=ant_web_pro -v /宿主机绝对路径:/容器内目录 -p docker外部端口:docker内部端口 nginx</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>-P: 随机端口映射，容器内部端口随机映射到主机的高端口</li>
+<li>-p: 指定端口映射，格式为：主机(宿主)端口:容器端口</li>
+<li>–name=”nginx-lb”: 为容器指定一个名称；</li>
+<li>–volume , -v: 绑定一个卷</li>
+<li>如果是容器里的目录不存在，两者都会自动创建</li>
+<li>-v $PWD/目录:/容器内目录 $PWD表示当前文件夹</li>
+<li>当你在容器容器内部改变数据卷是其实软连接到了外部，数据直接在宿主机改变</li>
+</ul>
+<h3 id="查看数据卷"><a href="#查看数据卷" class="headerlink" title="查看数据卷"></a>查看数据卷</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume ls</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动已终止的容器"><a href="#启动已终止的容器" class="headerlink" title="启动已终止的容器"></a>启动已终止的容器</h3><p>容器可以通过run新建一个来运行，也可以重新start已经停止的container，但start不能够再指定容器启动时运行的指令，因为docker只能有一个前台进程。<br>容器stop（或Ctrl+D）时，会在保存当前容器的状态之后退出，下次start时保有上次关闭时更改。而且每次进入attach进去的界面是一样的，与第一次run启动或commit提交的时刻相同。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker start $CONTAINER_ID</span><br><span class="line">docker stop $CONTAINER_ID</span><br><span class="line">docker restart $CONTAINER_ID</span><br></pre></td></tr></table></figure>
+
+<h3 id="退出容器"><a href="#退出容器" class="headerlink" title="退出容器"></a>退出容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exit</span><br></pre></td></tr></table></figure>
+
+<h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it ant-design-pro_web /bin/bash</span><br><span class="line">//docker exec -it 64b9ded82141 bash (可以是id)</span><br></pre></td></tr></table></figure>
+
+<h3 id="删除一个或多个container、image（rm、rmi）"><a href="#删除一个或多个container、image（rm、rmi）" class="headerlink" title="删除一个或多个container、image（rm、rmi）"></a>删除一个或多个container、image（rm、rmi）</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 删除容器</span><br><span class="line">docker rm &lt;container_id/contaner_name&gt;</span><br><span class="line"></span><br><span class="line">// 删除所有停止的容器</span><br><span class="line">docker rm $(docker ps -a -q)</span><br><span class="line"></span><br><span class="line">// 删除镜像</span><br><span class="line">docker rmi &lt;image_id/image_name ...&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="docker查看数据卷轴"><a href="#docker查看数据卷轴" class="headerlink" title="docker查看数据卷轴"></a>docker查看数据卷轴</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume ls</span><br></pre></td></tr></table></figure>
+
+<h3 id="commit-容器，创建新镜像"><a href="#commit-容器，创建新镜像" class="headerlink" title="commit 容器，创建新镜像"></a>commit 容器，创建新镜像</h3><p>我们期望能定制自己的镜像，在里面安装一些基础环境（比如上文中的 node），然后制作出自己要的基础镜像。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker commit -a &quot;runoob.com&quot; -m &quot;my apache&quot; a404c6c174a2  mymysql:v1</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>-a :提交的镜像作者；</p>
+</li>
+<li><p>-c :使用Dockerfile指令来创建镜像；</p>
+</li>
+<li><p>-m :提交时的说明文字；</p>
+</li>
+<li><p>-p :在commit时，将容器暂停。</p>
+</li>
+</ul>
+<h3 id="docker镜像的导出和导入"><a href="#docker镜像的导出和导入" class="headerlink" title="docker镜像的导出和导入"></a>docker镜像的导出和导入</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker save -o &lt;保存路径&gt; &lt;镜像名称:标签&gt;</span><br><span class="line">docker save -o ./ubuntu18.tar ubuntu:18.04 </span><br><span class="line">docker load --input ./ubuntu18.tar</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker export &lt;容器名&gt; &gt; &lt;保存路径&gt;</span><br><span class="line">docker export ubuntu18 &gt; ./ubuntu18.tar</span><br><span class="line">docker import &lt;文件路径&gt;  &lt;容器名&gt;</span><br><span class="line">docker import ./ubuntu18.tar ubuntu18</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>export命令是从容器（container）中导出tar文件，而save命令则是从镜像（images）中导出</li>
+<li>export导出的文件再import回去时，无法保留镜像所有历史（即每一层layer信息，不熟悉的可以去看Dockerfile），不能进行回滚操作；而save是依据镜像来的，所以导入时可以完整保留下每一层layer信息。</li>
+</ul>
+<h2 id="docker安装一些软件完整指令"><a href="#docker安装一些软件完整指令" class="headerlink" title="docker安装一些软件完整指令"></a>docker安装一些软件完整指令</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name mysql3 -p 3308:3306 -v /usr/local/docker/mysql/data2:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>-e设置环境变量，MYSQL_ROOT_PASSWORD登录密码</li>
+<li>-v /usr/local/docker/mysql/config/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf: 将容器中 /etc/mysql/mysql.conf.d/mysqld.cnf 配置文件挂载到宿主机的 /usr/local/docker/mysql/config/mysqld.cnf 文件上；</li>
+<li>-v /usr/local/docker/mysql/data:/var/lib/mysql: 将容器中 /var/lib/mysql 数据目录挂载到宿主机的 /usr/local/docker/mysql/data 目录下；</li>
+<li>mysql:5.7是你的镜像名称</li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">JianJc</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.jianjiacheng.com/2019/09/08/服务器/docker常用指令详解/">https://www.jianjiacheng.com/2019/09/08/服务器/docker常用指令详解/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.jianjiacheng.com">JianJc's technology sharing</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/docker/">docker    </a><a class="post-meta__tags" href="/tags/linux/">linux    </a><a class="post-meta__tags" href="/tags/ubuntu/">ubuntu    </a></div><div class="post_share"><div class="social-share" data-image="http://photo.jianjiacheng.com/blog/docker常用指令详解/small.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-buttom"><i class="fa fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="lozad post-qr-code__img" data-src="http://photo.jianjiacheng.com/微信.png"><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="lozad post-qr-code__img" data-src="http://photo.jianjiacheng.com/支付宝.jpg"><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><nav class="pagination_post" id="pagination"><div class="prev-post pull-left"><a href="/2019/09/15/服务器/dockerfile与docker-compose配置/"><img class="prev_cover lozad" data-src="http://photo.jianjiacheng.com/blog/dockerfile与docker-compose配置/small.png" onerror="onerror=null;src='/img/404.jpg'"><div class="label">上一篇</div><div class="prev_info"><span>dockerfile与docker-compose配置</span></div></a></div><div class="next-post pull-right"><a href="/2019/09/02/React/Component或PureComponent/"><img class="next_cover lozad" data-src="http://photo.jianjiacheng.com/blog/36/small.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="label">下一篇</div><div class="next_info"><span>Component或PureComponent</span></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2019/09/15/服务器/dockerfile与docker-compose配置/" title="dockerfile与docker-compose配置"><img class="relatedPosts_cover lozad" data-src="http://photo.jianjiacheng.com/blog/dockerfile与docker-compose配置/small.png"><div class="relatedPosts_title">dockerfile与docker-compose配置</div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i> <span>评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+
+var localeName = 'tw',
+localeMode = {
+    head: {
+        nick: '暱稱(必填)',
+        mail: '郵箱(必填,可以收到回復提醒)',
+        link: '網址(選填)',
+    },
+    tips: {
+        comments: '評論',
+        sofa: '快來做第一個評論的人吧~',
+        busy: '還在提交中，請稍候...',
+        again: '這麼簡單也能錯，也是沒誰了.'
+    },
+    ctrl: {
+        reply: '回覆',
+        ok: '好的',
+        sure: '確認',
+        cancel: '取消',
+        confirm: '確認',
+        continue: '繼續',
+        more: '查看更多...',
+        try: '再試試?',
+        preview: '預覽',
+        emoji: '表情'
+    },
+    error: {
+        99: '初始化失敗，請檢查init中的`el`元素.',
+        100: '初始化失敗，請檢查你的AppId和AppKey.',
+        401: '未經授權的操作，請檢查你的AppId和AppKey.',
+        403: '訪問被api域名白名單拒絕，請檢查你的安全域名設置.',
+    },
+    timeago: {
+        seconds: '秒前',
+        minutes: '分鐘前',
+        hours: '小時前',
+        days: '天前',
+        now: '剛剛'
+    }
+};
+
+window.valine = new Valine();
+valine.installLocale(localeName,localeMode);
+
+valine.init({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'71zEgkqx1kXl8QC4ugWWm3zk-gzGzoHsz',
+  appKey:'BOMPXdQUAYJEKIb5F6N0uJR9',
+  placeholder:'请在这里输入你的评论！',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang:'en',
+  recordIP: true
+});</script></div></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 - 2019 By JianJc</div><div class="framework-info"><span>邮箱:</span><a href><span>1797731542@qq.com</span></a><!--span.footer-separator |--><!--span= _p('footer.theme') + ' '--><!--a(href='https://github.com/jerryc127/hexo-theme-butterfly')--><!--  span Butterfly--></div><div class="icp"><a href="http://www.beian.miit.gov.cn"><span>蜀ICP备19006428号</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><section class="rightside" id="rightside"><i class="fa fa-book" id="readmode" title="阅读模式"> </i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="简繁转换">簡</a><i class="fa fa-moon-o nightshift" id="nightshift" title="夜间模式"></i></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script async src="/js/search/algolia.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css"><script>$(function () {
+  $('span.katex-display').wrap('<div class="katex-wrap"></div>')
+})</script><script src="/js/nightshift.js"></script><script id="ribbon" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/js/piao.js"></script><script src="/js/activate-power-mode.js"></script><script>POWERMODE.colorful = true; // make power mode colorful
+POWERMODE.shake = true; // turn off shake
+document.body.addEventListener('input', POWERMODE);
+</script><script src="/js/tw_cn.js"></script><script>translateInitilization()
+
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@1.2.2/instantpage.min.js" type="module"></script><div class="search-dialog" id="algolia-search"><div class="search-dialog__title" id="algolia-search-title">Algolia</div><div id="algolia-input-panel"><div id="algolia-search-input"></div></div><hr><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-stats"></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
